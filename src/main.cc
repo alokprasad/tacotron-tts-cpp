@@ -8,7 +8,7 @@
 #endif
 
 #include "cxxopts.hpp"
-#include "json.hpp"
+//#include "json.hpp"
 
 #define DR_WAV_IMPLEMENTATION
 #include "dr_wav.h"
@@ -19,6 +19,7 @@
 
 #include "tf_synthesizer.h"
 
+#if 0
 template<typename T>
 bool GetNumberArray(const nlohmann::json &j, const std::string &name,
                     std::vector<T> *value) {
@@ -46,7 +47,9 @@ bool GetNumberArray(const nlohmann::json &j, const std::string &name,
   return true;
 }
 
+#endif
 
+#if 0
 // Load sequence from JSON array
 bool LoadSequence(const std::string &sequence_filename, std::vector<int32_t> *sequence)
 {
@@ -62,6 +65,7 @@ bool LoadSequence(const std::string &sequence_filename, std::vector<int32_t> *se
   return GetNumberArray(j, "sequence", sequence);
   
 }
+#endif 
 
 static uint16_t ftous(const float x)
 {
@@ -120,16 +124,16 @@ int main(int argc, char **argv) {
 
   auto result = options.parse(argc, argv);
 
-  if (!result.count("input")) {
-    std::cerr << "Please specify input sequence file with -i or --input option."
-              << std::endl;
-    return -1;
-  }
+//  if (!result.count("input")) {
+    //std::cerr << "Please specify input sequence file with -i or --input option."
+  //            << std::endl;
+//    return -1;
+  //}
 
   if (!result.count("graph")) {
     std::cerr << "Please specify freezed graph with -g or --graph option."
               << std::endl;
-    return -1;
+    //return -1;
   }
 
   if (result.count("hparams")) {
@@ -143,11 +147,14 @@ int main(int argc, char **argv) {
     output_filename = result["output"].as<std::string>();
   }
 
-  std::vector<int32_t> sequence;
+  std::vector<int32_t> sequence { 46, 30, 36, 32, 41, 47, 36, 46, 47, 46, 64, 28, 47, 64, 47, 35, 32, 64, 30, 32, 45, 41, 64, 39, 28, 29, 42, 45, 28, 47, 42, 45, 52, 64, 46, 28, 52, 64, 47, 35, 32, 52, 64, 35, 28, 49, 32, 64, 31, 36, 46, 30, 42, 49, 32, 45, 32, 31, 64, 28, 64, 41, 32, 50, 64, 43, 28, 45, 47, 36, 30, 39, 32, 60, 1};
+
+#if 0 
   if (!LoadSequence(input_filename, &sequence)) {
     std::cerr << "Failed to load sequence data : " << input_filename << std::endl;
     return EXIT_FAILURE;
   }
+#endif
 
   std::cout << "sequence = [";
   for (size_t i = 0; i < sequence.size(); i++) {

@@ -1,123 +1,22 @@
-cmake_minimum_required(VERSION 3.5.1)
 
-project(TTS)
+##LINUX
+#Build just change require CMakeLists*.txt file in include and use cmake .. and make from build.
+#TF git rev-parse HEAD - > 70be2de5dd7743a571fffc6a2cbc2905bd18063a 
+#But it was buit using 19c 
+#sudo apt-get install autoconf automake libtool curl make g++ unzip zlib1g-dev git python
+#tensorflow/contrib/makefile/build_all_linux.sh
+#git clone https://github.com/tensorflow/tensorflow.git
+#cd tensorflow
+#git checkout -b r1.14
+#git pull
+#tensorflow/contrib/makefile/build_all_linux.sh
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
-find_package(Sanitizers) # Address sanitizer.
+##ANDROID
 
-# threads
-find_package(Threads)
+# ANdroid - Compile Tensorflow with ndk14b ( dockerfile ) and TTS with NDK15b 
+# #cmake -DCMAKE_TOOLCHAIN_FILE=${NDK_ROOT}/build/cmake/android.toolchain.cmake     -DANDROID_ABI=arm64-v8a   -DTARGET_PLATFORM=android -DTARGET_ARCHITECTURE=arm64 -DNDK_PATH=${NDK_ROOT} ..
+# tensorflow 1.13 compiled with ndk14b ( check docker file , grep ANDROID_NDK_FILENAME) and tts with ndk15b
 
-# Add custom build type DebugOpt
-message("* Adding build types...")
-IF (MSVC)
-SET(CMAKE_CXX_FLAGS_DEBUGOPT
-    "-DDEBUG /DEBUG /O2"
-    CACHE STRING "Flags used by the C++ compiler during coverage builds."
-    FORCE )
-SET(CMAKE_C_FLAGS_DEBUGOPT
-    "-DDEBUG /DEBUG /O2"
-    CACHE STRING "Flags used by the C compiler during coverage builds."
-    FORCE )
-ELSE () # Assume gcc
-SET(CMAKE_CXX_FLAGS_DEBUGOPT
-    "-g -O2 -fno-omit-frame-pointer"
-    CACHE STRING "Flags used by the C++ compiler during coverage builds."
-    FORCE )
-SET(CMAKE_C_FLAGS_DEBUGOPT
-    "-g -O2 -fno-omit-frame-pointer"
-    CACHE STRING "Flags used by the C compiler during coverage builds."
-    FORCE )
-ENDIF()
-
-SET(CMAKE_EXE_LINKER_FLAGS_DEBUGOPT
-    ""
-    CACHE STRING "Flags used for linking binaries during coverage builds."
-    FORCE )
-SET(CMAKE_SHARED_LINKER_FLAGS_DEBUGOPT
-    ""
-    CACHE STRING "Flags used by the shared libraries linker during coverage builds."
-    FORCE )
-MARK_AS_ADVANCED(
-    CMAKE_CXX_FLAGS_DEBUGOPT
-    CMAKE_C_FLAGS_DEBUGOPT
-    CMAKE_EXE_LINKER_FLAGS_DEBUGOPT
-    CMAKE_SHARED_LINKER_FLAGS_DEBUGOPT )
-
-IF(NOT CMAKE_BUILD_TYPE)
-   SET(CMAKE_BUILD_TYPE Release
-       CACHE STRING "Choose the type of build : None Debug Release RelWithDebInfo MinSizeRel DebugOpt."
-       FORCE)
-ENDIF(NOT CMAKE_BUILD_TYPE)
-message("* Current build type is : ${CMAKE_BUILD_TYPE}")
-
-# C++11
-set (CMAKE_CXX_STANDARD 11)
-
-# PIC
-set (CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-include_directories(
-    ${CMAKE_SOURCE_DIR}/src
-)
-
-set (CORE_SOURCE
-    ${CMAKE_SOURCE_DIR}/src/main.cc
-    ${CMAKE_SOURCE_DIR}/src/tf_synthesizer.cc
-    )
-
-link_directories(
-    ${TENSORFLOW_BUILD_DIR}
-    )
-
-add_executable( tts
-    ${CORE_SOURCE}
-    )
-
-target_include_directories(tts
-    # TensorFlow
-    PUBLIC ${TENSORFLOW_DIR}
-
-    # for array_ops.h
-    PUBLIC ${TENSORFLOW_DIR}/bazel-genfiles
-
-    # headers for external packages
-    PUBLIC ${TENSORFLOW_EXTERNAL_DIR}/external/protobuf_archive/src
-    PUBLIC ${TENSORFLOW_EXTERNAL_DIR}/external/eigen_archive
-    PUBLIC ${TENSORFLOW_EXTERNAL_DIR}/external/nsync/public
-
-    # this project
-    PUBLIC ${CMAKE_SOURCE_DIR}/src
-)
-
-target_link_libraries( tts
-    # TensorFlow C++
-    tensorflow_framework
-    tensorflow_cc
-
-    ${TTS_EXT_LIBS}
-    ${CMAKE_THREAD_LIBS_INIT}
-    ${CMAKE_DL_LIBS}
-    )
-
-
-# Increase warning level for clang.
-IF (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_compile_options(tts PRIVATE -Weverything -Wno-padded -Wno-c++98-compat-pedantic -Wno-documentation -Wno-documentation-unknown-command)
-ENDIF ()
-
-add_sanitizers(tts)
-
-# [VisualStudio]
-if (WIN32)
-  # Set `tts` as a startup project for VS IDE
-  if (CMAKE_VERSION VERSION_GREATER 3.6.0)
-    set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT tts)
-  endif ()
-  
-  # For easier debugging in VS IDE(cmake 3.8.0 or later required)
-  if (CMAKE_VERSION VERSION_GREATER 3.8.0)
-    # Set working directory to $lucia git repo root.
-    set_target_properties(tts PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
-  endif ()
-endif ()
+cmake_minimum_required(VERSION 3.10)
+#include(CMakeLists-static-linux.txt)
+include(CMakeLists-static-android.txt)

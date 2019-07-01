@@ -57,6 +57,22 @@ SOFTWARE.
 #include <valarray> // valarray
 #include <vector> // vector
 
+/////
+
+using namespace std ; 
+  namespace std 
+  { 
+  template < typename T > std :: string to_string ( const T& n ) 
+       { 
+  std :: ostringstream stm ; 
+  stm << n ; 
+  return stm.str() ; 
+  } 
+  } 
+
+////
+
+
 // exclude unsupported compilers
 #if defined(__clang__)
     #if (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__) < 30400
